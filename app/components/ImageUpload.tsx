@@ -1,8 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import * as tf from "@tensorflow/tfjs";
-import * as mobilenet from "@tensorflow-models/mobilenet";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Upload, ImageIcon, RefreshCw } from "lucide-react";
@@ -10,70 +8,42 @@ import { Upload, ImageIcon, RefreshCw } from "lucide-react";
 export default function ImageUpload() {
   const [image, setImage] = useState<string | null>(null);
   const [caption, setCaption] = useState<string | null>(null);
-  const [model, setModel] = useState<tf.LayersModel | null>(null);
-  const [tokenizer, setTokenizer] = useState<any>(null);
-  const [maxLength, setMaxLength] = useState<number>(20);
-
-  useEffect(() => {
-    const loadModel = async () => {
-      const loadedModel = await tf.loadLayersModel("/model.json");
-      setModel(loadedModel);
-
-      const tokenizerData = await fetch("/tokenizer.json").then((res) => res.json());
-      setTokenizer(tokenizerData);
-
-      const maxLen = await fetch("/max_length.json").then((res) => res.json());
-      setMaxLength(maxLen);
-    };
-
-    loadModel();
-  }, []);
+  const [loading, setLoading] = useState<boolean>(false);
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (!file || !model || !tokenizer) return;
+    if (!file) return;
 
     const reader = new FileReader();
     reader.onload = (e) => setImage(e.target?.result as string);
     reader.readAsDataURL(file);
 
     setCaption(null);
+    setLoading(true);
 
-    const imageFeature = await extractImageFeature(file);
-    const generatedCaption = generateCaption(model, tokenizer, imageFeature, maxLength);
+    const formData = new FormData();
+    formData.append("file", file);
 
-    setCaption(generatedCaption);
-  };
+    try {
+      const response = await fetch("http://localhost:8000/predict/", {
+        method: "POST",
+        body: formData,
+      });
 
-  const generateCaption = (model: tf.LayersModel, tokenizer: any, imageFeature: any, maxLength: number) => {
-    let inText = "startseq";
-    for (let i = 0; i < maxLength; i++) {
-      const sequence = tokenizer.texts_to_sequences([inText])[0] || [];
-      const paddedSequence = new Array(maxLength - sequence.length).fill(0).concat(sequence);
-
-      const yPred = model.predict([tf.tensor([imageFeature]), tf.tensor([paddedSequence])]) as tf.Tensor;
-      const wordIndex = yPred.argMax(-1).dataSync()[0];
-
-      const word = tokenizer.index_word?.[wordIndex] || null;
-      if (!word || word === "endseq") break;
-
-      inText += " " + word;
+      const data = await response.json();
+      console.log("API Response:", data); // This will show in the browser console
+      
+      if (data.caption) {
+        setCaption(data.caption);
+      } else {
+        setCaption("Failed to generate caption. Please try again.");
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      setCaption("Failed to generate caption. Please try again.");
+    } finally {
+      setLoading(false);
     }
-    return inText.replace("startseq", "").replace("endseq", "").trim();
-  };
-
-  const extractImageFeature = async (file: File) => {
-    const img = document.createElement("img");
-    img.src = URL.createObjectURL(file);
-    await new Promise((resolve) => (img.onload = resolve));
-
-    const tensor = tf.browser.fromPixels(img).resizeNearestNeighbor([224, 224]).toFloat();
-    const normalizedTensor = tensor.div(tf.scalar(255)).expandDims(0);
-
-    const featureModel = await mobilenet.load();
-    const feature = await featureModel.infer(normalizedTensor, true);
-
-    return feature.flatten().arraySync();
   };
 
   const handleNewImage = () => {
@@ -84,7 +54,9 @@ export default function ImageUpload() {
   return (
     <section id="image-upload" className="py-20 bg-gray-900">
       <div className="container mx-auto px-6">
-        <h2 className="text-3xl md:text-4xl font-bold mb-8 text-center">Upload Your Image</h2>
+        <h2 className="text-3xl md:text-4xl font-bold mb-8 text-center text-white">
+          Upload Your Image
+        </h2>
         <div className="max-w-2xl mx-auto bg-gray-800 p-8 rounded-lg shadow-lg">
           <div className="mb-6">
             <Input type="file" accept="image/*" onChange={handleImageUpload} className="hidden" id="image-input" />
@@ -106,17 +78,10 @@ export default function ImageUpload() {
               )}
             </label>
           </div>
-          {image && !caption && (
-            <Button
-              onClick={() => generateCaption}
-              className="w-full bg-purple-600 hover:bg-purple-700 text-white py-2 rounded-lg transition duration-300 ease-in-out transform hover:scale-105 mb-4"
-            >
-              Generate Caption
-            </Button>
-          )}
+          {loading && <p className="text-center text-white">Generating caption...</p>}
           {caption && (
             <div className="mt-6 p-4 bg-gray-700 rounded-lg">
-              <h3 className="text-xl font-semibold mb-2 flex items-center">
+              <h3 className="text-xl font-semibold mb-2 flex items-center text-white">
                 <ImageIcon className="mr-2" /> Generated Caption
               </h3>
               <p className="text-gray-300 mb-4">{caption}</p>
