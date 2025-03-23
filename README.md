@@ -47,3 +47,18 @@ npm run dev
 This will start the frontend.
 
 Now, your Python server is running in the background, and your Next.js project is ready to connect to it. 🚀
+
+
+
+
+![Project Screenshot](Screenshot 2025-03-23 185302.png)
+![Project Screenshot](Screenshot 2025-03-23 185328.png)
+![Project Screenshot](Screenshot 2025-03-23 185423.png)
+
+
+
+
+
+
+
+
