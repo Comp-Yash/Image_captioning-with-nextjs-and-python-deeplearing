@@ -4,12 +4,18 @@ next js with trainde model on flicker 8k (note connection are not join , underwo
 Do this first !!!!!!!!!!!!!!!!!
 
 /project-root
+
+First Folder
+
 │── /server  (Python backend)
 │   ├── server.py
 │   ├── model.keras
 │   ├── tokenizer.pkl
 │   ├── max_len.pkl
 │   ├── reference_caption.pkl
+
+
+Second Folder
 
 │── /nextjs-app  (Next.js frontend)
 │   ├── pages/
