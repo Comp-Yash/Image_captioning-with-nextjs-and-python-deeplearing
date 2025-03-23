@@ -51,9 +51,9 @@ Now, your Python server is running in the background, and your Next.js project i
 
 
 
-![Project Screenshot](Screenshot 2025-03-23 185302.png)
-![Project Screenshot](Screenshot 2025-03-23 185328.png)
-![Project Screenshot](Screenshot 2025-03-23 185423.png)
+![Project Screenshot](screenshots/Screenshot 2025-03-23 185302.png)
+![Project Screenshot](screenshots/Screenshot 2025-03-23 185328.png)
+![Project Screenshot](screenshots/Screenshot 2025-03-23 185423.png)
 
 
 
