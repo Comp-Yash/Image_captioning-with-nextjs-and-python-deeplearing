@@ -11,14 +11,13 @@ Do this first !!!!!!!!!!!!!!!!!
 │   ├── max_len.pkl
 │   ├── reference_caption.pkl
 
-
-
 │── /nextjs-app  (Next.js frontend)
 │   ├── pages/
 │   ├── components/
 │   ├── public/
 │   ├── package.json
 │   ├── next.config.js
+
 
 
 
@@ -53,9 +52,15 @@ Now, your Python server is running in the background, and your Next.js project i
 
 
 
+Website: 
+
 
 ![Project Screenshot](screenshots/Screenshot%202025-03-23%20185302.png)
 ![Project Screenshot](screenshots/Screenshot%202025-03-23%20185328.png)
+
+
+Server.py:
+
 ![Project Screenshot](screenshots/Screenshot%202025-03-23%20185423.png)
 
 
